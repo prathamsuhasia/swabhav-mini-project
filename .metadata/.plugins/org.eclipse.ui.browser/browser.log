@@ -1,0 +1,11 @@
+
+Aug 16, 2024 13:36:31.05 NEW SESSION
+Aug 16, 2024 13:36:31.05 Created TensorFlow Lite XNNPACK delegate for CPU.
+Aug 16, 2024 13:38:38.55 [17684:14660:0816/133838.542:ERROR:connection_factory_impl.cc(483)] ConnectionHandler failed with net error: -2
+Aug 16, 2024 13:38:38.55 [17684:14660:0816/133838.558:ERROR:connection_factory_impl.cc(434)] Failed to connect to MCS endpoint with error -105
+Aug 16, 2024 13:38:38.99 Attempting to use a delegate that only supports static-sized tensors with a graph that has dynamic-sized tensors (tensor#58 is a dynamic-sized tensor).
+Aug 16, 2024 13:52:02.84 [17684:18200:0816/135202.843:ERROR:device_event_log_impl.cc(196)] [13:52:02.842] USB: usb_service_win.cc:105 SetupDiGetDeviceProperty({{A45C254E-DF1C-4EFD-8020-67D146A850E0}, 6}) failed: Element not found. (0x490)
+Aug 16, 2024 14:03:21.94 [17684:14660:0816/140321.898:ERROR:connection_factory_impl.cc(483)] ConnectionHandler failed with net error: -2
+Aug 16, 2024 14:03:21.96 [17684:14660:0816/140321.942:ERROR:connection_factory_impl.cc(434)] Failed to connect to MCS endpoint with error -105
+Aug 16, 2024 14:08:46.95 [17684:14660:0816/140846.927:ERROR:connection_factory_impl.cc(483)] ConnectionHandler failed with net error: -2
+Aug 16, 2024 14:57:49.59 [17684:18200:0816/145749.590:ERROR:device_event_log_impl.cc(196)] [14:57:49.589] USB: usb_service_win.cc:105 SetupDiGetDeviceProperty({{A45C254E-DF1C-4EFD-8020-67D146A850E0}, 6}) failed: Element not found. (0x490)

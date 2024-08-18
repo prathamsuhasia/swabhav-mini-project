@@ -1,0 +1,54 @@
+@WebServlet("/AdminController")
+public class AdminController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private BankDBUtil bankDBUtil;
+
+	public AdminController() {
+		super();
+		bankDBUtil = new BankDBUtil(); 
+		bankDBUtil.connectToDB();  // Ensure it's called only once
+	}
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		processRequest(request, response);
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		processRequest(request, response);
+	}
+
+	private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String action = request.getParameter("action");
+		if (action == null) {
+			response.sendRedirect("Admin.jsp");
+			return;
+		}
+
+		switch (action) {
+			case "AddCustomers":
+				response.sendRedirect("AddNewCustomer.jsp");
+				break;
+			case "AddAccount":
+				List<Customers> accountList = bankDBUtil.createAccount();
+				request.setAttribute("accountList", accountList);
+				dispatcher = request.getRequestDispatcher("AddCustomers.jsp");
+				dispatcher.forward(request, response);
+				break;
+			case "ViewCustomers":
+				List<Customers> customersList = bankDBUtil.viewCustomer();
+				request.setAttribute("customerList", customersList);
+				dispatcher = request.getRequestDispatcher("ViewCustomers.jsp");
+				dispatcher.forward(request, response);
+				break;
+			case "ViewTransactions":
+				List<Transactions> transactions = bankDBUtil.viewTransactions();
+				request.setAttribute("transactionList", transactions);
+				dispatcher = request.getRequestDispatcher("ViewTransactions.jsp");
+				dispatcher.forward(request, response);
+				break;
+			default:
+				response.sendRedirect("Admin.jsp");
+				break;
+		}
+	}
+}

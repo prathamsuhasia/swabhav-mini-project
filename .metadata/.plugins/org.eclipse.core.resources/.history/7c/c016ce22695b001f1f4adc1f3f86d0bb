@@ -1,0 +1,54 @@
+package com.aurionpro.controllers;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/CustomerController")
+public class CustomerController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    public CustomerController() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		String action = request.getParameter("action");
+		switch (action) {
+		case "Passbook":
+			// Redirect to the passbook page
+			response.sendRedirect("passbook.jsp");
+			break;
+		
+		case "NewTransaction":
+			// Redirect to the new transaction page
+			response.sendRedirect("newTransaction.jsp");
+			break;
+			
+		case "Update Profile":
+			// Redirect to the update profile page
+			response.sendRedirect("updateProfile.jsp");
+			break;
+
+		default:
+			// Handle unknown actions
+			response.sendRedirect("error.jsp");
+			break;
+	}
+
+	}
+
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
+
+}

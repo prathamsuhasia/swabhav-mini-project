@@ -1,0 +1,265 @@
+package com.aurionpro.data;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.aurionpro.entity.Customers;
+import com.aurionpro.entity.Transactions;
+
+public class BankDBUtil {
+
+    private Statement statement;
+    private Connection connection;
+    private PreparedStatement preparedStatement;
+    private int customerId;
+
+    public void connectToDB() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank", "root", "root");
+            statement = connection.createStatement();
+            System.out.println("Connection successful!");
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean validateAdmin(String username, String password) {
+        try {
+            String query = "select * from admins where email = ? and password = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next(); // If a result exists, credentials are valid
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean validateCustomers(String email, String password) {
+        try {
+            String query = "select * from customers where email = ? and password = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, email);
+            preparedStatement.setString(2, password);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next(); 
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void addCustomer(String firstName, String lastName, String email, String password) {
+        try {
+            String query = "insert into customers (first_name, last_name, email, password) values (?, ?, ?, ?)";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, firstName);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setString(3, email);
+            preparedStatement.setString(4, password);
+
+            preparedStatement.executeUpdate();
+            System.out.println("Customer added successfully!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addBankAccount(int customerId, String accountNumber, double initialBalance) {
+        try {
+            String query = "insert into accounts  (customer_id, account_number, balance) values (?, ?, ?)";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, customerId);
+            preparedStatement.setString(2, accountNumber);
+            preparedStatement.setDouble(3, initialBalance);
+
+            preparedStatement.executeUpdate();
+            System.out.println("Bank account added successfully!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Customers> createAccount() {
+        List<Customers> customersWithoutAccount = new ArrayList<>();
+
+        try {
+
+            String query = "SELECT c.customer_id, c.first_name, c.last_name, c.email, c.created_at,a.account_number,a.balance " +
+                           "FROM customers c " +
+                           "LEFT JOIN accounts a ON c.customer_id = a.customer_id ";
+
+            preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("customer_id");
+                String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String email = resultSet.getString("email");
+                String createdAt = resultSet.getString("created_at");
+                String accountNumber = resultSet.getString("account_number");
+                double balance = resultSet.getDouble("balance");
+
+                customersWithoutAccount.add(new Customers(id, firstName, lastName, email, createdAt, accountNumber, balance));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return customersWithoutAccount;
+    }
+    public boolean isEmailPresent(String email) {
+        boolean exists = false;
+        try {
+            String query = "SELECT COUNT(*) FROM customers WHERE email = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, email);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                exists = rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return exists;
+    }
+    
+    public int getCustomerID(String username, String password) {
+
+        try {
+            String sql = "SELECT customer_id FROM customers WHERE email = ? AND password = ?";
+            
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+            
+             ResultSet resultSet = preparedStatement.executeQuery();
+            
+            if (resultSet.next()) {
+                // Retrieve customer ID from the result set
+                customerId = resultSet.getInt("customer_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle exceptions properly in your production code
+        } 
+        
+        return customerId;
+    }
+    
+    public List<Customers> getCustomerDetails(int customerId) {
+        List<Customers> customers = new ArrayList<>();
+        
+        String query = "SELECT c.customer_id, c.first_name, c.last_name, c.email, c.created_at, a.account_number,a.balance " +
+                       "FROM customers c " +
+                       "LEFT JOIN accounts a ON c.customer_id = a.customer_id " +
+                       "WHERE c.customer_id = ?";
+        
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, customerId);
+            
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("customer_id");
+                    String firstName = resultSet.getString("first_name");
+                    String lastName = resultSet.getString("last_name");
+                    String email = resultSet.getString("email");
+                    String createdAt = resultSet.getString("created_at");
+                    String accountNumber = resultSet.getString("account_number");
+                    double balance = resultSet.getDouble("balance");
+
+                    Customers customer = new Customers(id, firstName, lastName, email, createdAt, accountNumber, balance);
+
+                    customers.add(customer);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle exceptions properly in your production code
+        }
+        
+        return customers;
+    }
+
+    public List<Customers> viewCustomer() {
+        List<Customers> customers = new ArrayList<>();
+
+        try {
+            String query = "select c.customer_id, c.first_name, c.last_name, c.email, c.created_at, a.account_number, a.balance from customers c " +
+                           "left join accounts a on c.customer_id = a.customer_id ";
+
+            preparedStatement = connection.prepareStatement(query);
+           
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("customer_id");
+                String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String email = resultSet.getString("email");
+                String createdAt = resultSet.getString("created_at");
+                String accountNumber = resultSet.getString("account_number");
+                double balance = resultSet.getDouble("balance");
+                
+                System.out.println(id);
+
+                customers.add(new Customers(id, firstName, lastName, email, createdAt, accountNumber, balance));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return customers;
+    }
+
+    public List<Transactions> viewTransactions() {
+        List<Transactions> transactions = new ArrayList<>();
+
+        try {
+            String query = "select * from transactions";
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                int transactionID = resultSet.getInt("transaction_id");
+                String senderAccNo = resultSet.getString("sender_account_number");
+                String receiverAccNo = resultSet.getString("receiver_account_number");
+                String transactionType = resultSet.getString("transaction_type");
+                double amount = resultSet.getDouble("amount");
+                String transactionDate = resultSet.getString("transaction_date");
+
+                transactions.add(new Transactions(transactionID, senderAccNo, receiverAccNo, transactionType, amount, transactionDate));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return transactions;
+    }
+
+    public void closeConnection() {
+        try {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+            System.out.println("Connection closed.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}

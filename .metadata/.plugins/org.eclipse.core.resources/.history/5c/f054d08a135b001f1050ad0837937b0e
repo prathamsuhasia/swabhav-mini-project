@@ -1,0 +1,29 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    <%
+    HttpSession sessions = request.getSession(false);
+    if (sessions == null || session.getAttribute("username") == null || session.getAttribute("admin") !="admin") {
+        // No session or user not logged in, redirect to the login page
+        response.sendRedirect("Index.jsp");
+        return;
+    }
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Dashboard</title>
+</head>
+<body>
+
+<form action="AdminController" method="post">
+    <input type="submit" name="action" value="AddCustomers" />
+    <input type="submit" name="action" value="AddAccount" />
+    <input type="submit" name="action" value="ViewCustomers" />
+    <input type="submit" name="action" value="ViewTransactions" />
+    <input type="submit" name="action" value="LogoutServlet" />
+</form>
+<form action="Logoutservlet" > <input type="submit" name="action" value="Logout" /></form>
+
+</body>
+</html>

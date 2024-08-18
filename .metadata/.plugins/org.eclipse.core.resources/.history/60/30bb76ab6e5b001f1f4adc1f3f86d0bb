@@ -1,0 +1,88 @@
+package com.aurionpro.controllers;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.aurionpro.data.BankDBUtil;
+import com.aurionpro.entity.Transactions;
+
+@WebServlet("/CustomerController")
+public class CustomerController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private BankDBUtil bankDBUtil;
+
+	public CustomerController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		String action = request.getParameter("action");
+		switch (action) {
+		case "Passbook":
+
+			response.sendRedirect("Passbook.jsp");
+			break;
+
+		case "NewTransaction":
+			response.sendRedirect("NewTransaction.jsp");
+			break;
+
+		case "Update Profile":
+			response.sendRedirect("UpdateProfile.jsp");
+			break;
+		case "PrintPassbook":
+			String accountNumber = request.getParameter("accountNumber");
+			bankDBUtil = new BankDBUtil();
+			bankDBUtil.connectToDB();
+			List<Transactions> transactions = bankDBUtil.printPassbook(accountNumber);
+			request.setAttribute("transactions", transactions);
+			request.getRequestDispatcher("Passbook.jsp").forward(request, response);
+			break;
+		case "CreateTransaction":
+			// Retrieve transaction parameters
+			String senderAccountNumber = request.getParameter("accountNumber");
+			String transactionType = request.getParameter("transactionType");
+			String receiverAccountNumber = request.getParameter("receiverAccountNumber");
+			String amountStr = request.getParameter("amount");
+
+			if ("credit".equals(transactionType) || "debit".equals(transactionType)) {
+				receiverAccountNumber = senderAccountNumber; // Set receiver as "self"
+			}
+
+			double amount = Double.parseDouble(amountStr);
+
+			bankDBUtil = new BankDBUtil();
+			bankDBUtil.connectToDB();
+			try {
+				bankDBUtil.createTransaction(senderAccountNumber, receiverAccountNumber, transactionType, amount);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			response.sendRedirect("Customer.jsp"); // Ensure this page exists or modify as needed
+			break;
+		default:
+			response.sendRedirect("Customer.jsp");
+			break;
+		}
+
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
+
+}

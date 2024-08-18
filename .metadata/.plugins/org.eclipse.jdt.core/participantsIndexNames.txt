@@ -1,0 +1,3 @@
+INDEX VERSION 1.130
+D:\miniproject\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2573346812.index
+\01-mini-project\src

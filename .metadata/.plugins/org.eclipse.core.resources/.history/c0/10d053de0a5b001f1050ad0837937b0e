@@ -1,0 +1,44 @@
+package com.aurionpro.controllers;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.aurionpro.data.BankDBUtil;
+
+
+@WebServlet("/AddAccountController")
+public class AddAccountController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+    private BankDBUtil bankDBUtil;
+       
+
+    public AddAccountController() {
+        super();
+
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int customerId = Integer.parseInt(request.getParameter("customerId"));
+        bankDBUtil = new BankDBUtil();
+        bankDBUtil.connectToDB();
+
+        String accountNumber = "ACC" + System.currentTimeMillis(); 
+        double initialBalance = Double.parseDouble(request.getParameter("initialBalance"));
+
+        bankDBUtil.addBankAccount(customerId, accountNumber, initialBalance);
+
+        response.sendRedirect("viewCustomers.jsp");
+	}
+
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+		doGet(request, response);
+	}
+
+}
